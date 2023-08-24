@@ -1,0 +1,30 @@
+esphome:
+  name: esphome-web-6004b0
+  friendly_name: ESPHome Web 6004b0
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "81U/Bo+RjVNtNsK6i2um+30vDSAi+vts8sojoVFXbxI="
+
+ota:
+
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Esphome-Web-6004B0"
+    password: "Wyrh46qHxx6r"
+
+captive_portal:

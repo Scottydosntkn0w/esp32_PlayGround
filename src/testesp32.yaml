@@ -1,0 +1,56 @@
+
+
+
+#single Sensor
+# Example configuration entry
+dallas:
+  - pin: 23
+
+# Individual sensors
+sensor:
+  - platform: dallas
+    address: 0x1c0000031edd2a28
+    name: "Livingroom Temperature"
+
+#multiple sensor at single pin
+# Example configuration entry
+dallas1:
+  - pin: GPIO23
+
+sensor1:
+  - platform: dallas
+    address: 0xA40000031F055028
+    name: "Temperature #1"
+  - platform: dallas
+    address: 0xDD0000031EFB0428
+    name: "Temperature #2"
+  - platform: dallas
+    # ...
+
+
+#tipping bucket rain guage
+binary_sensor:
+  - platform: status
+    name: "RG Status"
+  - platform: homeassistant
+    id: rain_gauge_deep_sleep
+    name: "rain_gauge_deep_sleep"
+    entity_id: input_boolean.rain_gauge_deep_sleep
+    publish_initial_state: True
+    on_state:
+      then:
+        if:
+          condition:
+            lambda: return x;
+          then:
+            - deep_sleep.allow: init_deep_sleep
+          else:
+            - switch.turn_on: rg_led
+            - deep_sleep.prevent: init_deep_sleep
+
+deep_sleep:
+  run_duration: $wake_time
+  id: init_deep_sleep
+  esp32_ext1_wakeup:
+    pins: GPIO25
+    mode: ALL_LOW

@@ -1,0 +1,53 @@
+sensor:
+  name: Rain_Guage
+  unit_of_measurement: 'mm'
+  icon: mdi:weather-pouring
+  device_class: 'PRECIPITATION'
+  state_class: 'total_increasing'
+  filters:
+    - lambda: return x * 0.2;
+
+
+
+
+
+
+
+
+sensor:
+  - platform: pulse_counter
+    name: "Rain Guage"
+    pin: GPIO23
+    unit_of_measurement: 'mm'
+    filters:
+      - multiply: .02
+
+    total:
+      unit_of_measurement: 'mm'
+
+
+
+sensor:
+  - platform: history_stats
+    name: "Rainsensor flips/h"
+    entity_id: binary_sensor.rain_gauge_rain_gauge_status
+    state: "on"
+    type: count
+    start: "{{ now() - timedelta(hours=1) }}"
+    end: "{{ now() }}"
+
+template:
+  - sensor:
+      - name: Rainfall [h]
+        state_class: total_increasing
+        unique_id: rainfall_h
+        unit_of_measurement: mm
+        icon: mdi:weather-pouring
+        state: >-
+          {% set count = states('sensor.rainsensor_flips_h') | int(0) %}
+          {% set mm = count * 0.631356 %}
+          {% if count >= 0 %}
+            {{ mm|round(1, 'floor') }}
+          {% endif %}
+
+        availability: "{{ (states('sensor.rainsensor_flips_h') not in 'unknown', 'unavailable')) }}"

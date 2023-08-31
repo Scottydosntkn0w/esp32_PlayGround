@@ -1,0 +1,22 @@
+  - platform: pulse_counter
+    id: rainfall
+    pin:
+      #Red wire to GPIO4, Black Wire to Ground
+      number: GPIO4
+      mode: 
+        input: True
+        pullup: True
+      inverted: True
+    use_pcnt: False
+    internal_filter: 100ms
+    count_mode:
+      rising_edge: DISABLE
+      falling_edge: INCREMENT
+    unit_of_measurement: "mm"
+    name: 'Rainfall'
+    accuracy_decimals: 3
+    filters:
+      - multiply: 0.2
+      - debounce: .25s
+    state_class: total_increasing
+    update_interval: 60s

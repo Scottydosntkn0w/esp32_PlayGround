@@ -1,0 +1,151 @@
+i2c:
+  sda: 21
+  scl: 22
+  scan: true
+  id: bus_a
+
+
+
+
+
+bme680_bsec:
+    # id
+    # -----------
+    # Identifier for this component, useful when working with multiple devices.
+    # Must be unique, and can be used in the sensor sections to refer to the correct device.
+    # Default: auto-computed
+    id: bme680_internal
+
+    # i2c address
+    # -----------
+    # Common values are:
+    # - 0x76
+    # - 0x77
+    # Default: 0x76
+    address: 0x77
+
+    # Temperature offset
+    # ------------------
+    # Useful if device is in enclosure and reads too high
+    # For example, if it reads 5C too high, set this to 5
+    # This also corrects the relative humidity readings
+    # Default: 0
+    temperature_offset: 0
+
+    # IAQ calculation mode
+    # --------------------
+    # Available options:
+    # - static (for fixed position devices)
+    # - mobile (for on a person or other moveable devices)
+    # Default: static
+    iaq_mode: static
+
+    # Sample rate
+    # -----------
+    # Available options:
+    # - lp (low power - samples every 3 seconds)
+    # - ulp (ultra-low power - samples every 5 minutes)
+    # Default: lp
+    sample_rate: ulp
+
+    # Interval at which to save BSEC state
+    # ------------------------------------
+    # Default: 6h
+    state_save_interval: 6h
+
+sensor:
+  - platform: bme680_bsec
+    # ID of the bme680_bsec component to use for the next sensors.
+    # Useful when working with multiple devices
+    bme680_bsec_id: bme680_internal
+
+    temperature:
+      # Temperature in °C
+      name: "BME680 Temperature"
+      sample_rate: lp
+      filters:
+        - median
+    pressure:
+      # Pressure in hPa
+      name: "BME680 Pressure"
+      sample_rate: lp
+      filters:
+        - median
+    humidity:
+      # Relative humidity %
+      name: "BME680 Humidity"
+      sample_rate: lp
+      filters:
+        - median
+    gas_resistance:
+      # Gas resistance in Ω
+      name: "BME680 Gas Resistance"
+      filters:
+        - median
+    iaq:
+      # Indoor air quality value
+      name: "BME680 IAQ"
+      filters:
+        - median
+    iaq_accuracy:
+      # IAQ accuracy as a numeric value of 0, 1, 2, 3
+      name: "BME680 Numeric IAQ Accuracy"
+    co2_equivalent:
+      # CO2 equivalent estimate in ppm
+      name: "BME680 CO2 Equivalent"
+      filters:
+        - median
+    breath_voc_equivalent:
+      # Volatile organic compounds equivalent estimate in ppm
+      name: "BME680 Breath VOC Equivalent"
+      filters:
+        - median
+
+  - platform: adc
+    pin: GPIO34
+    name: "Soil Moisture"
+    id: SMV
+    update_interval: 60s
+    accuracy_decimals: 0
+    attenuation: auto
+    unit_of_measurement: "%"
+    filters:
+    - calibrate_linear:
+      - 3.14 -> 0.00
+      - 1.7 -> 100.00
+
+  - platform: bh1750
+    name: "BH1750 Illuminance"
+    address: 0x23
+    update_interval: 5s
+
+  - platform: ina3221
+    address: 0x40
+    channel_2:
+      shunt_resistance: 0.1 ohm
+      current:
+        name: "INA3221 Channel 2 Current"
+      power:
+        name: "INA3221 Channel 2 Power"
+      bus_voltage:
+        name: "INA3221 Channel 2 Bus Voltage"
+      shunt_voltage:
+        name: "INA3221 Channel 2 Shunt Voltage"
+    channel_3:
+      shunt_resistance: 0.1 ohm
+      current:
+        name: "INA3221 Channel 3 Current"
+      power:
+        name: "INA3221 Channel 3 Power"
+      bus_voltage:
+        name: "INA3221 Channel 3 Bus Voltage"
+      shunt_voltage:
+        name: "INA3221 Channel 3 Shunt Voltage"
+
+    update_interval: 5s
+
+text_sensor:
+  - platform: bme680_bsec
+    iaq_accuracy:
+      # IAQ accuracy as a text value of Stabilizing, Uncertain, Calibrating, Calibrated
+      name: "BME680 IAQ Accuracy"
